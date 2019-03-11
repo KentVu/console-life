@@ -1,0 +1,5 @@
+set show-all-if-ambiguous On
+"\ek": history-search-backward
+"\ej": history-search-forward
+#"\e[1;3A": history-search-backward                # Alt-Up
+#"\e[1;3B": history-search-forward                 # Alt-Down
