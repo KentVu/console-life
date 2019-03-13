@@ -64,3 +64,13 @@ cd_func ()
 alias cd=cd_func
 # F4: print dir stack (require cd_func())
 bind -x '"\eOS":cd --'
+
+function adbFindPid() {
+	local tag=$1
+	local prefix=${2} #:+"-e "
+	local delim=${3:-\|}
+	local awk='BEGIN{first=1}/@tag@/{if(first==1){printf "@prefix@";first=0}print $2}' 
+	awk="${awk/@tag@/$tag}"
+	awk="${awk/@prefix@/$prefix}"
+	adb_ exec-out ps | awk "$awk" | paste -sd "$delim" - | tee /dev/stderr
+}
