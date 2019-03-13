@@ -66,6 +66,18 @@ alias cd=cd_func
 # F4: print dir stack (require cd_func())
 bind -x '"\eOS":cd --'
 
+# The following adb-related functions use this.
+# define ADB_DEVICE if multiple devices are connecting.
+function adb_ {
+	if [ -n "$ADB_DEVICE" ]; then
+		adb -s $ADB_DEVICE "$@"
+	else
+		adb "$@"
+	fi
+}
+# Wakeful adb
+alias adbw='adb_ shell input keyevent KEYCODE_WAKEUP ; adb_'
+
 function adbFindPid() {
 	local tag=$1
 	local prefix=${2} #:+"-e "
