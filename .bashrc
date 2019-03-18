@@ -3,6 +3,11 @@
 bind -x '"\C-^":cd - && pwd'
 # Shift-F10: Restore vim session. (Press F10 in vim to store session - see ~/.vimrc)
 bind -x '"\e[21;2~": vim -S Session.vim'
+# F2: remember `now`
+function now { now=`date +%Y%m%d%H%M`; echo "now is [$now]" ; }
+bind -x '"\eOQ": now'
+# Shift-F2: set $now to latest log on device (requires adb_)
+bind -x '"\e[1;2Q": adb_ exec-out "ls ./sdcard/log-*" | tail -1 | grep -Eo "[0-9]{4,}"'
 
 # (ripped from cygwin profile.bash)
 # b) function cd_func
