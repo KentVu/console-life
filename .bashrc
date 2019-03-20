@@ -92,3 +92,14 @@ function adbFindPid() {
 	awk="${awk/@prefix@/$prefix}"
 	adb_ exec-out ps | awk "$awk" | paste -sd "$delim" - | tee /dev/stderr
 }
+
+function adb_edit {
+	name=`basename $1`
+	adb_ pull $1 /tmp && vim /tmp/$name && {
+		adb_ exec-out cat $1 | tee >(diff -u --color - /tmp/$name >&2) | cmp - /tmp/$name || {
+			#cmp /tmp/$name <(adb exec-out cat $1)
+			adb_ push /tmp/$name //data/local/tmp/$name && adb_ exec-out "cat //data/local/tmp/$name > $1"
+		}
+	}
+	#rm -v /tmp/$name
+}
