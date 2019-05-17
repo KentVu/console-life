@@ -1,4 +1,6 @@
 # -*- tab-width: 4; encoding: utf-8 -*-
+# F1: change mintty directory (new sessions will default to $PWD)
+bind -x '"\eOP": perl -s -e '\''$sl=length($s);print "mintty remembers ";if($sl>$l){print substr($s,0,$l/2),"...",substr($s,-$l/2)}else{print $s}print "!\n\e]7;$s\a"'\'' -- -s="$PWD" -l=40'
 # Ctrl-Return:cd last dir
 bind -x '"\C-^":cd - && pwd'
 # Shift-F10: Restore vim session. (Press F10 in vim to store session - see ~/.vimrc)
