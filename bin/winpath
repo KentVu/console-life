@@ -1,0 +1,23 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+        dir=$PWD
+    else
+        dir=$1
+fi
+winpath()
+{
+    if [ -n "$*" ]; then
+        p=`readlink -f "$@"`
+    else
+        p=`pwd`
+    fi
+    if [[ ${p:0:2} == '//' ]]; then
+        echo "$p" | sed -r 's-//10.24.231.195-~/work-g'
+    else
+        #echo "$p" | sed -rn -e 's|^/mnt/HDD/build-env/|//10.24.252.131/build-env/|' -e 's^/^\\^gp'
+        #echo "$p" | sed -rn -e 's|^/mnt/HDD2/build-env/|//10.24.252.131/build-env2/|' -e 's^/^\\^gp'
+        echo "$p" | sed -rn -e 's|^/mnt/HDD/build-env/|//10.24.252.131/build-env/|' -e 's|^/mnt/HDD2/build-env/|//10.24.252.131/build-env2/|' -e 's^/^\\^gp'
+        #echo "$p" | sed -r -e 's-^(/home4/lx[0-9]+|/home4/tmp)-//10.24.231.195-g' -e 's=/=\\=g' -e 's~/home4/tmp~//10.24.231.195/tmp_ROM_SRC~g'
+    fi
+}
+winpath "$@"
