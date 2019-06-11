@@ -1,0 +1,2 @@
+# Search for $command_name and retrieve command line, cwd
+ps -o pid,ppid,command -C $command_name |awk 'FNR >= 2{print $2">"$1" "substr($0, index($0,$3)); system("ls -l /proc/"$1"/cwd")}'
