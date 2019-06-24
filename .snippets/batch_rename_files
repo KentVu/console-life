@@ -1,2 +1,2 @@
-# Change files with `common_part' to `changed_part'
+# Change files with `common_part' to `changed_part' (remove sed's `e' flags to confirm)
 ls -1 common_part.* |sed -r 's/common_part\.(\w+)/mv -vi \0 changed_part.\1/pe'
