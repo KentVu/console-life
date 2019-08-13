@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#https://stackoverflow.com/a/246128/1562087
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+db=~/.hist.db
+odb=~/.history-old.db
+command=$1
+
+case "$command" in
+	init) 
+		if [ -f $db ]; then
+			echo $db already exists
+			exit 1
+		fi
+		arg="$2"
+		if [ "$arg" == "-f" ]; then
+			rm -v $db
+		fi
+		sqlite3 $db < $DIR/histool.schema.sql
+	;;
+	debug) 
+		shift
+		args="$@"
+		sqlite3 $db "$@"
+	;;
+	searchold|so) 
+		shift
+		args="$@"
+		sqlite3 $odb "SELECT typed FROM history WHERE typed LIKE '%$args%'"
+	;;
+	search|s) 
+		sqlite3 $db "SELECT command FROM commands WHERE command LIKE '%$args%'"
+	;;
+	save|sa) 
+		sqlite3 $db "SELECT command FROM commands WHERE command LIKE '%$args%'"
+	;;
+	*)
+		echo Invalid!
+		exit 1
+	;;
+esac
