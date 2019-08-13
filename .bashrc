@@ -35,7 +35,7 @@ prompt_command_function () {
 	if [ "$(id -u)" -ne 0 ]; then
 		typed=$(history 1 | gsed -r 's/^\s*[0-9]+\s*//')
 		hist_cmd=$(history 1 | cut -d\  -f 2)
-		#echo "$(gdate "+%Y-%m-%d.%H:%M:%S") $(pwd) $(history 1)" >> ~/.logs/bash-history-$(gdate "+%Y-%m-%d").log
+		echo "$(gdate "+%Y-%m-%d.%H:%M:%S") $(pwd) $(history 1)" >> ~/.logs/bash-history-$(gdate "+%Y-%m-%d").log
 		last_timestamp=${last_timestamp:-`gdate +%s`}
 		histool save "$last_timestamp" "$typed"
 		#if [ -n "$last_line" ]; then

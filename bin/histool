@@ -1,13 +1,15 @@
 #!/bin/bash
-if [ "$1" == "-d" ]; then
-	set -Ceux
-	shift
-fi
-
 #https://stackoverflow.com/a/246128/1562087
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 db=~/.hist.db
 odb=~/.history-old.db
+
+if [ "$1" == "-d" ]; then
+	db=~/.hist.test.db
+	set -Ceux
+	shift
+fi
+
 command="$1"
 
 function sql() {
@@ -19,7 +21,7 @@ function sql_select() {
 
 case "$command" in
 	init) 
-		arg="$2"
+		arg=${2:-""}
 		if [ "$arg" == "-f" ]; then
 			echo -n remove\ 
 			rm -v $db
@@ -64,8 +66,23 @@ case "$command" in
 	;;
 	save|sa) 
 		shift
-		args="$@"
-		sql "INSERT into commands values ('$args')"
+		pwd=$(pwd)
+		at=$1
+		duration=$((`gdate +%s` - ${at:-0}))
+		shift
+		cmd="$@"
+		getlastrow='SELECT last_insert_rowid()'
+		cmdid=`sql "INSERT INTO commands(command) VALUES ('$cmd'); $getlastrow"`
+		pwdid=`sql "INSERT INTO directories(directory) VALUES ('$pwd'); $getlastrow"`
+		#sql "INSERT INTO commands(command) VALUES ('$cmd')"
+		#sql "INSERT INTO directories(directory) VALUES ('$pwd')"
+		if [ $cmdid == 0 ]; then
+			cmdid=`sql "SELECT rowid FROM commands WHERE command = '$cmd'"`
+		fi
+		if [ $pwdid == 0 ]; then
+			pwdid=`sql "SELECT rowid FROM directories WHERE directory = '$pwd'"`
+		fi
+		sql "INSERT INTO runtimes(at,duration,cmd,wd) VALUES ($at,$duration,$cmdid,$pwdid)"
 	;;
 	*)
 		echo Invalid!

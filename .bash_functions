@@ -111,10 +111,29 @@ cd_func ()
 alias cd=cd_func
 # F4: view dir stack
 if isBashVers5; then
-	bind -x '"\eOS":cd_func --'
+	bind -x '"\eOS":cd --'
 else
-	bind '"\eOS":"cd_func --\n"'
+	bind '"\eOS":"\C-acd --\C-k\n"'
 fi
+
+
+function mkcd { mkdir -pv $1 && cd $1 ;}
+
+function has {
+	local cmd=$1
+	which $cmd >/dev/null
+}
+	
+has unzip && function unzipToDir {
+	zippath=$1
+	zipfile=$(bashname $1)
+	#zipdir=$(bashname $1 | sed 's/\.[^.]*$//' )
+	zipdir=${zipfile%.*}
+	mkdir $zipdir &&
+		pushd $zipdir &&
+		unzip $zipfile
+	popd
+}
 
 function changeToTildedPath() {
 	#[[ -z "$1" ]] && return 1
@@ -166,6 +185,8 @@ function readlineChangeToRelativePath() {
 }
 # Ctrl-.
 bind -x '"\eOP": readlineChangeToRelativePath'
+
+## git
 
 function gitIsDetaching() {
 	branch=`git rev-parse --abbrev-ref HEAD`

@@ -1,0 +1,9 @@
+[submodule "gits/bash-preexec"]
+	path = gits/bash-preexec
+	url = git@github.com:rcaloras/bash-preexec.git
+[submodule ".vim/pack/kien/start/vim-repeat"]
+	path = .vim/pack/kien/start/vim-repeat
+	url = git@github.com:tpope/vim-repeat.git
+[submodule ".vim/pack/kien/start/vim-fugitive"]
+	path = .vim/pack/kien/start/vim-fugitive
+	url = git@github.com:tpope/vim-fugitive.git
