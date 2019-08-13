@@ -1,38 +1,71 @@
 #!/bin/bash
+if [ "$1" == "-d" ]; then
+	set -Ceux
+	shift
+fi
 
 #https://stackoverflow.com/a/246128/1562087
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 db=~/.hist.db
 odb=~/.history-old.db
-command=$1
+command="$1"
+
+function sql() {
+	sqlite3 $db "$@"
+}
+function sql_select() {
+	sql "SELECT command FROM commands $@"
+}
 
 case "$command" in
 	init) 
+		arg="$2"
+		if [ "$arg" == "-f" ]; then
+			echo -n remove\ 
+			rm -v $db
+		fi
 		if [ -f $db ]; then
 			echo $db already exists
 			exit 1
 		fi
-		arg="$2"
-		if [ "$arg" == "-f" ]; then
-			rm -v $db
-		fi
-		sqlite3 $db < $DIR/histool.schema.sql
+		sql < $DIR/histool.schema.sql
 	;;
 	debug) 
 		shift
 		args="$@"
-		sqlite3 $db "$@"
+		sql "$@"
 	;;
 	searchold|so) 
 		shift
 		args="$@"
+		if [ -z "$args" ]; then
+			echo No search param!
+			exit 1
+		fi
 		sqlite3 $odb "SELECT typed FROM history WHERE typed LIKE '%$args%'"
 	;;
 	search|s) 
-		sqlite3 $db "SELECT command FROM commands WHERE command LIKE '%$args%'"
+		shift
+		args="$@"
+		if [ -z "$args" ]; then
+			echo No search param!
+			exit 1
+		fi
+		sql_select "WHERE command LIKE '%$args%'"
+	;;
+	list|l) 
+		if [ $# -gt 1 ]; then
+			limit="$2"
+			limits="LIMIT $limit"
+		else
+			limits=""
+		fi
+		sql_select "$limits"
 	;;
 	save|sa) 
-		sqlite3 $db "SELECT command FROM commands WHERE command LIKE '%$args%'"
+		shift
+		args="$@"
+		sql "INSERT into commands values ('$args')"
 	;;
 	*)
 		echo Invalid!

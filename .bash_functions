@@ -1,24 +1,36 @@
 #!/bin/bash
 
-alias cp='cp -vi'
-alias mv='mv -vi'
+# Some example alias instructions
+# If these are enabled they will be used instead of any instructions
+# they may mask.  For example, alias rm='rm -i' will mask the rm
+# application.  To override the alias instruction use a \ before, ie
+# \rm will call the real rm not the alias.
+#
+# Interactive operation...
+# alias rm='rm -i'
+alias rm='rm -v'
+alias cp='cp -iv'
+alias mv='mv -iv'
 alias mkdir='mkdir -v'
 alias chmod='chmod -c'
 alias chown='chown -c'
 
 # git
-alias gd="git diff"
-alias gd2="git diff --ignore-all-space"
-#alias gdw="git diff --color-words"
-alias gdc="git diff --cached"
-#alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-#alias gla="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all"
-alias gl='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s"'
-#alias gl1='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %s"'
-alias gla='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s" --all'
-alias gsn='git status -uno'
 alias gs='git status'
 alias gss='git status --short'
+# git pretty
+alias gl1='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %s"'
+alias gl='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s"'
+alias gll='git log'
+alias gla='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s" --all'
+alias gd='git diff'
+alias gdc='git diff --cached'
+
+alias ls='ls -hF'                 # classify files in colour
+alias ll='ls -lFh'                              # long list
+alias la='ls -A'                              # all but . and ..
+alias lla='ls -lA'                            # all long but . and ..
+alias l='ls -CF'                              #
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -32,12 +44,16 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# some more ls aliases
-alias ll='ls -lFh'
-alias lla='ls -alFh'
-alias la='ls -A'
-alias l='ls -CF'
+isBashVers5() {
+	[[ $BASH_VERSION =~ ^5.* ]]
+}
 
+# b) function cd_func
+# This function defines a 'cd' replacement function capable of keeping, 
+# displaying and accessing history of visited directories, up to 10 entries.
+# To use it, uncomment it, source this file and try 'cd --'.
+# acd_func 1.0.5, 10-nov-2004
+# Petar Marinov, http:/geocities.com/h2428, this is public domain
 # usage:	cd -- : list dirstack
 #	 	cd -N : cd to dirstack
 #		cd -  : == cd -1
@@ -93,6 +109,12 @@ cd_func ()
   return 0
 }
 alias cd=cd_func
+# F4: view dir stack
+if isBashVers5; then
+	bind -x '"\eOS":cd_func --'
+else
+	bind '"\eOS":"cd_func --\n"'
+fi
 
 function changeToTildedPath() {
 	#[[ -z "$1" ]] && return 1
@@ -144,3 +166,34 @@ function readlineChangeToRelativePath() {
 }
 # Ctrl-.
 bind -x '"\eOP": readlineChangeToRelativePath'
+
+function gitIsDetaching() {
+	branch=`git rev-parse --abbrev-ref HEAD`
+	[ "$branch" = "HEAD" ]
+	return $?
+}
+
+function gitDetachAndResetTo {
+	local branch=`git describe --contains --all HEAD`
+	echo 'current ref: '$branch
+	echo 'git checkout --detach && git reset '$@
+	sha1=${1}
+	br=${2:-$sha1}
+	if ! git rev-parse --quiet --verify "$br"; then
+		# Branch not exists
+		br=$sha1
+	fi
+	echo git reset $br
+	if ! gitIsDetaching ; then
+		echo Detach!
+		git checkout --detach
+	fi
+	echo -n "Checkout [$br] after reset? "
+	read a
+	git reset --soft $br &&
+		if [[ "$a" = y ]]; then
+			git checkout "$br"
+		fi
+}
+function __git_wrap_git_reset() { __git_func_wrap _git_reset; }
+complete -o bashdefault -o default -o nospace -F __git_wrap_git_reset gitDetachAndResetTo
