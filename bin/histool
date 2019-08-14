@@ -9,6 +9,7 @@ if [ "$1" == "-d" ]; then
 	set -Ceux
 	shift
 fi
+#set -Cux
 
 command="$1"
 
@@ -80,15 +81,16 @@ case "$command" in
 		duration=$((`gdate +%s` - ${at:-0}))
 		shift
 		cmd="$@"
+		#cmd=${cmd/\'/\'\'}
 		getlastrow='SELECT last_insert_rowid()'
 		cmdid=`sql "INSERT INTO commands(command) VALUES ('$cmd'); $getlastrow"`
 		pwdid=`sql "INSERT INTO directories(directory) VALUES ('$pwd'); $getlastrow"`
 		#sql "INSERT INTO commands(command) VALUES ('$cmd')"
 		#sql "INSERT INTO directories(directory) VALUES ('$pwd')"
-		if [ $cmdid == 0 ]; then
+		if [ "$cmdid" == 0 ]; then
 			cmdid=`sql "SELECT rowid FROM commands WHERE command = '$cmd'"`
 		fi
-		if [ $pwdid == 0 ]; then
+		if [ "$pwdid" == 0 ]; then
 			pwdid=`sql "SELECT rowid FROM directories WHERE directory = '$pwd'"`
 		fi
 		sql "INSERT INTO runtimes(at,duration,cmd,wd) VALUES ($at,$duration,$cmdid,$pwdid)"
