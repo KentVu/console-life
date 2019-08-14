@@ -128,8 +128,9 @@ has unzip && function unzipToDir {
 	zipfile=$(basename $1)
 	#zipdir=$(bashname $1 | sed 's/\.[^.]*$//' )
 	zipdir=${zipfile%.*}
-	mkdir $zipdir
-	pushd $zipdir &&
+	basedir=$(dirname ${zippath})
+	mkdir $basedir/$zipdir
+	pushd $basedir/$zipdir &&
 		unzip $zippath
 	popd
 }

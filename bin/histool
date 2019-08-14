@@ -16,7 +16,11 @@ function sql() {
 	sqlite3 $db "$@"
 }
 function sql_select_cmd() {
-	sql "SELECT commandid,command FROM commands $@"
+	if [ "$1" == "-n" ]; then
+		local commandid="commandid,"
+		shift
+	fi
+	sql "SELECT ${commandid}command FROM commands $@"
 }
 
 case "$command" in
@@ -56,13 +60,18 @@ case "$command" in
 		sql_select_cmd "WHERE command LIKE '%$args%'"
 	;;
 	list|l) 
+		long=""
+		if [ "$1" == "-l" ]; then
+			long=true
+			shift
+		fi
 		if [ $# -gt 1 ]; then
 			limit="$2"
 			limits="LIMIT $limit"
 		else
 			limits=""
 		fi
-		sql_select_cmd "$limits"
+		sql_select_cmd -n "$limits"
 	;;
 	save|sa) 
 		shift
