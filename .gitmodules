@@ -7,3 +7,9 @@
 [submodule ".vim/pack/kien/start/vim-fugitive"]
 	path = .vim/pack/kien/start/vim-fugitive
 	url = git@github.com:tpope/vim-fugitive.git
+[submodule ".vim/pack/kien/start/vim-easymotion"]
+	path = .vim/pack/kien/start/vim-easymotion
+	url = https://github.com/easymotion/vim-easymotion
+[submodule ".vim/pack/kien/start/vim-surround"]
+	path = .vim/pack/kien/start/vim-surround
+	url = git@github.com:tpope/vim-surround.git

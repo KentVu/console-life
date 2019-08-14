@@ -116,7 +116,6 @@ else
 	bind '"\eOS":"\C-acd --\C-k\n"'
 fi
 
-
 function mkcd { mkdir -pv $1 && cd $1 ;}
 
 function has {
@@ -125,13 +124,13 @@ function has {
 }
 	
 has unzip && function unzipToDir {
-	zippath=$1
-	zipfile=$(bashname $1)
+	zippath=$(realpath $1)
+	zipfile=$(basename $1)
 	#zipdir=$(bashname $1 | sed 's/\.[^.]*$//' )
 	zipdir=${zipfile%.*}
-	mkdir $zipdir &&
-		pushd $zipdir &&
-		unzip $zipfile
+	mkdir $zipdir
+	pushd $zipdir &&
+		unzip $zippath
 	popd
 }
 

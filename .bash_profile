@@ -1,6 +1,6 @@
-#JAVA_HOME=~/Library/Developer/Xamarin/jdk/microsoft_dist_openjdk_1.8.0.25
-#ANDROID_HOME=~/Library/Developer/Xamarin/android-sdk-macosx
-#PATH=$PATH:$ANDROID_HOME/platform-tools
+JAVA_HOME=/Users/vutran.kien/Library/Developer/Xamarin/jdk/microsoft_dist_openjdk_1.8.0.25
+ANDROID_HOME=/Users/vutran.kien/Library/Developer/Xamarin/android-sdk-macosx
+PATH=$PATH:$ANDROID_HOME/platform-tools
 if [ -d ~/bin ]; then
 	PATH=~/bin:$PATH
 fi
