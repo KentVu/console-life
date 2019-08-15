@@ -109,13 +109,24 @@ cd_func ()
   return 0
 }
 alias cd=cd_func
-# F4: view dir stack
+# F4: print dir stack (require cd_func())
 if isBashVers5; then
 	bind -x '"\eOS":cd --'
 else
 	bind '"\eOS":"\C-acd --\C-k\n"'
 fi
 
+### misc
+latestFileOfDir() {
+	dir=$1
+	glob=${2:-'*.logcat'}
+	ls -1 $dir/$glob |tail -1
+}
+
+process_cmdline() {
+	pname=$1
+	WMIC PROCESS WHERE "Name LIKE '$pname%'" GET commandLine /format:list |sed '/^$/d'
+}
 function mkcd { mkdir -pv $1 && cd $1 ;}
 
 function has {
@@ -186,7 +197,7 @@ function readlineChangeToRelativePath() {
 # Ctrl-.
 bind -x '"\eOP": readlineChangeToRelativePath'
 
-## git
+## Git
 
 function gitIsDetaching() {
 	branch=`git rev-parse --abbrev-ref HEAD`
@@ -218,3 +229,47 @@ function gitDetachAndResetTo {
 }
 function __git_wrap_git_reset() { __git_func_wrap _git_reset; }
 complete -o bashdefault -o default -o nospace -F __git_wrap_git_reset gitDetachAndResetTo
+
+function rebasen {
+	onto=$1 ; shift
+	b=$1 ; shift
+	n=$1 ; shift
+	echo "Rebase $b onto $onto with $n commits? (Ctrl-C) [$@]"
+	read 
+	git rebase $@ --onto $onto $b~$n $b
+}
+function __git_wrap_git_rebase() { __git_func_wrap _git_rebase; }
+complete -o bashdefault -o default -o nospace -F __git_wrap_git_rebase rebasen
+
+git_comparePatch() {
+	hash1=$1
+	hash2=$2
+	diff --color <(git show $hash1) <(git show $hash2) 
+}
+
+### adb
+logcat_findProc() {
+	regex=$1
+	#file=$(latestFileOfDir)
+	file=$2
+	egrep -i "am_proc_start.*$regex" $file |sed -r 's/^.*\[0,([0-9]+),.*$/\1/' |tail -1
+}
+
+logcat_findProcs() {
+	regex=$1
+	#file=$(latestFileOfDir)
+	file=$2
+	tail=${3:+|tail -$3}
+	#sed=${4:+|sed \"N;s/\\n/$4/\"}
+	sed=${4:+|"awk \"{print}\" ORS=$4 |sed s/..$//"}
+	eval "egrep -i \"am_proc_start.*($regex)\" $file |sed -r 's/^.*\[0,([0-9]+),.*$/\1/' $tail $sed"	#"
+}
+
+logcat_filterApp() {
+	regex=$1
+	#dir=$2
+	#latestFile=$(latestFileOfDir $dir)
+	file=$2
+	pid=`logcat_findProc "$regex" "$file"`
+	grep "$pid" "$file"
+}

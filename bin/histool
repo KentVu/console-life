@@ -80,6 +80,7 @@ case "$command" in
 		duration=$((`gdate +%s` - ${at:-0}))
 		shift
 		cmd="$@"
+		cmd="${cmd//\'/''}"
 		getlastrow='SELECT last_insert_rowid()'
 		cmdid=`sql "INSERT INTO commands(command) VALUES ('$cmd'); $getlastrow"`
 		pwdid=`sql "INSERT INTO directories(directory) VALUES ('$pwd'); $getlastrow"`
