@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# way to determine if we're on Mac's builtin bash or otherwise
-isBashVers5() {
-	[[ $BASH_VERSION =~ ^5.* ]]
-}
-
 # Some example alias instructions
 # If these are enabled they will be used instead of any instructions
 # they may mask.  For example, alias rm='rm -i' will mask the rm
@@ -21,30 +16,27 @@ alias chmod='chmod -c'
 alias chown='chown -c'
 
 # some more ls aliases
-if isBashVers5; then
-    alias ll='ls -lFh'
-    alias lla='ls -alFh'
-    alias la='ls -A'
-    alias l='ls -CF'
-else
-    alias ls='ls -hF'                 # classify files in colour
-    alias ll='ls -lFh'                              # long list
-    alias la='ls -A'                              # all but . and ..
-    alias lla='ls -lA'                            # all long but . and ..
-    alias l='ls -CF'                              #
-fi
+alias ll='ls -lFh'
+alias lla='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
 
 # git
 alias gs='git status'
 alias gss='git status --short'
+alias gsn='git status -uno'
 # git pretty
-alias gl1='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %s"'
+#alias gl1='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %s"'
+#alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+#alias gla="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all"
 alias gl='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s"'
 alias gll='git log'
 alias gla='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s" --all'
 alias gd='git diff'
-alias gdc='git diff --cached'
-
+alias gd2="git diff --ignore-all-space"
+#alias gdw="git diff --color-words"
+alias gdc="git diff --cached"
+#__git_complete gs _git_status
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -56,6 +48,8 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
+
+alias greph='grep -a ~/.bash_history -e'
 
 # b) function cd_func
 # This function defines a 'cd' replacement function capable of keeping, 
@@ -119,11 +113,8 @@ cd_func ()
 }
 alias cd=cd_func
 # F4: print dir stack (require cd_func())
-if isBashVers5; then
-	bind -x '"\eOS":cd --'
-else
-	bind '"\eOS":"\C-acd --\C-k\n"'
-fi
+bind -x '"\eOS":cd --'
+#bind -x '"\e-":cd --'
 
 ### misc
 latestFileOfDir() {
@@ -205,6 +196,18 @@ function readlineChangeToRelativePath() {
 }
 # F4
 bind -x '"\eOP": readlineChangeToRelativePath'
+
+function mpvthunar() {
+    local login=vutrankien:k
+    i=0
+    while [ "$i" -lt "$#" ]; do
+	set -- "$@" "$( node -e "console.log(decodeURI(process.argv[1].replace('smb://','smb://$login@')))" -- "$1" )"
+	shift
+	i=$(( i + 1 ))
+    done
+
+    mpv "$unes" "$@"
+}
 
 ## Git
 
