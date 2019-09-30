@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# way to determine if we're on Mac's builtin bash or otherwise
+isBashVers5() {
+	[[ $BASH_VERSION =~ ^5.* ]]
+}
+
 # Some example alias instructions
 # If these are enabled they will be used instead of any instructions
 # they may mask.  For example, alias rm='rm -i' will mask the rm
@@ -15,6 +20,20 @@ alias mkdir='mkdir -v'
 alias chmod='chmod -c'
 alias chown='chown -c'
 
+# some more ls aliases
+if isBashVers5; then
+    alias ll='ls -lFh'
+    alias lla='ls -alFh'
+    alias la='ls -A'
+    alias l='ls -CF'
+else
+    alias ls='ls -hF'                 # classify files in colour
+    alias ll='ls -lFh'                              # long list
+    alias la='ls -A'                              # all but . and ..
+    alias lla='ls -lA'                            # all long but . and ..
+    alias l='ls -CF'                              #
+fi
+
 # git
 alias gs='git status'
 alias gss='git status --short'
@@ -25,12 +44,6 @@ alias gll='git log'
 alias gla='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s" --all'
 alias gd='git diff'
 alias gdc='git diff --cached'
-
-alias ls='ls -hF'                 # classify files in colour
-alias ll='ls -lFh'                              # long list
-alias la='ls -A'                              # all but . and ..
-alias lla='ls -lA'                            # all long but . and ..
-alias l='ls -CF'                              #
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -43,10 +56,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
-
-isBashVers5() {
-	[[ $BASH_VERSION =~ ^5.* ]]
-}
 
 # b) function cd_func
 # This function defines a 'cd' replacement function capable of keeping, 
@@ -194,7 +203,7 @@ function readlineChangeToRelativePath() {
 		fi
 	done
 }
-# Ctrl-.
+# F4
 bind -x '"\eOP": readlineChangeToRelativePath'
 
 ## Git
