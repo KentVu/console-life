@@ -65,8 +65,8 @@ case "$command" in
 			long=true
 			shift
 		fi
-		if [ $# -gt 1 ]; then
-			limit="$2"
+		if [ $# -gt 2 ]; then
+			limit="$1"
 			limits="LIMIT $limit"
 		else
 			limits=""

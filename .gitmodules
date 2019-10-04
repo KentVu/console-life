@@ -13,3 +13,6 @@
 [submodule ".vim/pack/kien/start/vim-surround"]
 	path = .vim/pack/kien/start/vim-surround
 	url = git@github.com:tpope/vim-surround.git
+[submodule ".vim/pack/kien/start/vim-commentary"]
+	path = .vim/pack/kien/start/vim-commentary
+	url = https://github.com/tpope/vim-commentary

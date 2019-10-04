@@ -122,7 +122,8 @@ alias cd=cd_func
 if isBashVers5; then
 	bind -x '"\eOS":cd --'
 else
-	bind '"\eOS":"\C-acd --\C-k\n"'
+	#bind '"\eOS":"\C-acd --\C-k\n"'
+	bind -x '"\C-^":"cd -; cd --"'
 fi
 
 ### misc

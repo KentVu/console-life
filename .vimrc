@@ -26,6 +26,7 @@ if has("syntax")
   set foldmethod=syntax
   set foldlevelstart=3
   set foldcolumn=1
+
   filetype plugin on
   filetype indent on
 
@@ -42,6 +43,7 @@ if has('mouse')
   set mouse=a
   set ttymouse=sgr
 endif
+
 set pastetoggle=<F4>
 set history=2000
 set showcmd		" display incomplete commands
@@ -55,6 +57,7 @@ if &t_Co > 2 || has("gui_running")
   set hlsearch
   "colorscheme murphy
 endif
+
 " from git4win
 "set ai                          " set auto-indenting on for programming
 "------------------------------------------------------------------------------
@@ -113,4 +116,3 @@ elseif &term =~ 'screen\..*' && &term =~ 'xterm'
     "exec 'set term='.substitute(&term,'screen\.', '', '')
     "set background=dark
 endif
-set background=dark
