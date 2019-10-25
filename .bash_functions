@@ -17,8 +17,8 @@ alias rm='rm -v'
 alias cp='cp -iv'
 alias mv='mv -iv'
 alias mkdir='mkdir -v'
-alias chmod='chmod -c'
-alias chown='chown -c'
+#alias chmod='chmod -c'
+#alias chown='chown -c'
 
 # some more ls aliases
 if isBashVers5; then
@@ -44,6 +44,9 @@ alias gll='git log'
 alias gla='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s" --all'
 alias gd='git diff'
 alias gdc='git diff --cached'
+alias gh="git log --pretty=format:'%h' -n 1"
+function __git_wrap_git_log() { __git_func_wrap _git_log; }
+complete -o bashdefault -o default -o nospace -F __git_wrap_git_log gh
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -240,6 +243,15 @@ function gitDetachAndResetTo {
 function __git_wrap_git_reset() { __git_func_wrap _git_reset; }
 complete -o bashdefault -o default -o nospace -F __git_wrap_git_reset gitDetachAndResetTo
 
+function rebase {
+	mergebase=$(git merge-base $1 $2)
+	echo "Rebasing $1 onto $2 from common ancestor($mergebase)? (Ctrl-C)"
+	read
+	git rebase $3 $4 $5 --onto $2 $mergebase $1
+}
+function __git_wrap_git_rebase() { __git_func_wrap _git_rebase; }
+complete -o bashdefault -o default -o nospace -F __git_wrap_git_rebase rebase
+
 function rebasen {
 	onto=$1 ; shift
 	b=$1 ; shift
@@ -248,7 +260,6 @@ function rebasen {
 	read 
 	git rebase $@ --onto $onto $b~$n $b
 }
-function __git_wrap_git_rebase() { __git_func_wrap _git_rebase; }
 complete -o bashdefault -o default -o nospace -F __git_wrap_git_rebase rebasen
 
 git_comparePatch() {
@@ -257,10 +268,17 @@ git_comparePatch() {
 	diff --color <(git show $hash1) <(git show $hash2) 
 }
 
+gitGetFileVersion() {
+	local rev=$1
+	local path=$2
+	git show $rev:$path > $path
+}
+function __git_wrap_git_checkout() { __git_func_wrap _git_checkout; }
+complete -o bashdefault -o default -o nospace -F __git_wrap_git_checkout gitGetFileVersion
+
 ### adb
 logcat_findProc() {
 	regex=$1
-	#file=$(latestFileOfDir)
 	file=$2
 	egrep -i "am_proc_start.*$regex" $file |sed -r 's/^.*\[0,([0-9]+),.*$/\1/' |tail -1
 }
@@ -271,7 +289,7 @@ logcat_findProcs() {
 	file=$2
 	tail=${3:+|tail -$3}
 	#sed=${4:+|sed \"N;s/\\n/$4/\"}
-	sed=${4:+|"awk \"{print}\" ORS=$4 |sed s/..$//"}
+	sed=${4:+|"awk \"{print}\" ORS=$4 |sed s/.$//"}
 	eval "egrep -i \"am_proc_start.*($regex)\" $file |sed -r 's/^.*\[0,([0-9]+),.*$/\1/' $tail $sed"	#"
 }
 
@@ -283,3 +301,74 @@ logcat_filterApp() {
 	pid=`logcat_findProc "$regex" "$file"`
 	grep "$pid" "$file"
 }
+
+adb_runAs() {
+	TEMP=`getopt s: $*`
+	if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+	eval set -- "$TEMP"
+	#while getopts ":s:" o; do
+	#	case "${o}" in
+	#		s)
+	#			ser=${OPTARG}
+	#			;;
+	#		*)
+	#			return 1
+	#			;;
+	#	esac
+	#done	
+	while true ; do
+    case "$1" in
+        -s) echo "Option s"; ser=${2} ; shift 2 ;;
+        --) shift ; break ;;
+        *) echo "Internal error!" ; return 1 ;;
+    esac
+	done
+	#shift $((OPTIND-1))
+	echo "Remaining arguments:"
+	for arg do echo '--> '"\`$arg'" ; done
+	app=$1
+	shift
+	adb ${ser:+-s $ser} shell run-as $app "$@"
+}
+
+adb_pullAppFile() {
+	#com.kddi.android.auemail
+	app=$1
+	path=$2
+	base=$(basename $path)
+	ser=$3
+	adb_="adb ${ser:+-s $ser}"
+	# replace with install -D?
+	mkdir -pv $(dirname $app/$path)
+	#adb ${ser:+-s $ser} shell run-as $app "cat /data/user/0/$app/$path" > $app/$path
+	$adb_ shell run-as $app "cat $path" > $app/$path
+	echo file pulled to $app/$path
+}
+
+adb_pushAppFile() {
+	#com.kddi.android.auemail
+	app=$1
+	fpath=$2
+	dpath=$3
+	base=$(basename $fpath)
+	ser=$4
+	adb_="adb ${ser:+-s $ser}"
+	$adb_ push $fpath /sdcard/ &&
+		$adb_ shell run-as $app cp /sdcard/$base $dpath
+	echo file pushed to $dpath of $app
+}
+
+function adb_firstDevice {
+	adb_getDevice 1
+}
+
+function adb_getDevice {
+	local ord=${1:-1}
+	ord=$(($ord + 1))
+	adb devices |gsed -En $ord's/^([A-Z0-9.:]+).*/\1/p'
+}
+
+function adb_getIp {
+	adb shell ip addr show dev wlan0 |sed -En 's/.*inet ([0-9.]+).*/\1/p' 
+}
+

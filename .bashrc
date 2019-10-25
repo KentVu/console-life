@@ -58,8 +58,11 @@ if isBashVers5; then
 else
 	#bind 'RETURN: "\C-x\C-f"'
 	#bind -x '"\C-x\C-f": command_enter_function'
-	source ~/gits/bash-preexec/bash-preexec.sh
 	preexec_functions+=(command_enter_function)
 	precmd_functions+=(prompt_command_function)
 	#PROMPT_COMMAND=prompt_command_function
+	source ~/gits/bash-preexec/bash-preexec.sh
 fi
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
