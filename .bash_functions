@@ -302,20 +302,15 @@ logcat_filterApp() {
 	grep "$pid" "$file"
 }
 
+alias adb_="adb ${ADB_DEVICE:+-s $ADB_DEVICE}"
+#function adb_ {
+#	adb ${ADB_DEVICE:+-s $ADB_DEVICE} "$@"
+#}
+
 adb_runAs() {
 	TEMP=`getopt s: $*`
 	if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 	eval set -- "$TEMP"
-	#while getopts ":s:" o; do
-	#	case "${o}" in
-	#		s)
-	#			ser=${OPTARG}
-	#			;;
-	#		*)
-	#			return 1
-	#			;;
-	#	esac
-	#done	
 	while true ; do
     case "$1" in
         -s) echo "Option s"; ser=${2} ; shift 2 ;;
@@ -323,7 +318,6 @@ adb_runAs() {
         *) echo "Internal error!" ; return 1 ;;
     esac
 	done
-	#shift $((OPTIND-1))
 	echo "Remaining arguments:"
 	for arg do echo '--> '"\`$arg'" ; done
 	app=$1
@@ -337,9 +331,9 @@ adb_pullAppFile() {
 	path=$2
 	base=$(basename $path)
 	ser=$3
-	adb_="adb ${ser:+-s $ser}"
 	# replace with install -D?
 	mkdir -pv $(dirname $app/$path)
+	adb_="adb ${ser:+-s $ser}"
 	#adb ${ser:+-s $ser} shell run-as $app "cat /data/user/0/$app/$path" > $app/$path
 	$adb_ shell run-as $app "cat $path" > $app/$path
 	echo file pulled to $app/$path
@@ -369,6 +363,6 @@ function adb_getDevice {
 }
 
 function adb_getIp {
-	adb shell ip addr show dev wlan0 |sed -En 's/.*inet ([0-9.]+).*/\1/p' 
+	adb_ shell ip addr show dev wlan0 |sed -En 's/.*inet ([0-9.]+).*/\1/p' 
 }
 
