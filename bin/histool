@@ -20,7 +20,17 @@ function sql_select_cmd() {
 		local commandid="commandid,"
 		shift
 	fi
-	sql "SELECT ${commandid}command FROM commands $@"
+	if [ "$1" == "-l" ]; then
+		#local commandid="commandid,"
+		local long=true
+		shift
+	fi
+	#sql "SELECT ${long:+commandid,}command FROM commands $@"
+	if [ "$long" == true ]; then
+		sql "SELECT runtimes.runid,runtimes.cmd,commands.command,directory,at,duration FROM runtimes LEFT JOIN commands ON runtimes.cmd = commands.commandid LEFT JOIN directories ON wd = directoryid $@"
+	else
+		sql "SELECT ${long:+commandid,}command FROM commands $@"
+	fi
 }
 
 case "$command" in
@@ -52,12 +62,16 @@ case "$command" in
 	;;
 	search|s) 
 		shift
+		if [ "$1" == "-l" ]; then
+			long=true
+			shift
+	   	fi
 		args="$@"
 		if [ -z "$args" ]; then
 			echo No search param!
 			exit 1
 		fi
-		sql_select_cmd "WHERE command LIKE '%$args%'"
+		sql_select_cmd ${long:+-l} "WHERE command LIKE '%$args%'"
 	;;
 	list|l) 
 		long=""

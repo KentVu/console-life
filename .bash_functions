@@ -33,6 +33,7 @@ else
     alias lla='ls -lA'                            # all long but . and ..
     alias l='ls -CF'                              #
 fi
+alias egrep='egrep --color'
 
 # git
 alias gs='git status'
@@ -302,7 +303,7 @@ logcat_filterApp() {
 	grep "$pid" "$file"
 }
 
-alias adb_="adb ${ADB_DEVICE:+-s $ADB_DEVICE}"
+alias adb_='adb ${ADB_DEVICE:+-s $ADB_DEVICE}'
 #function adb_ {
 #	adb ${ADB_DEVICE:+-s $ADB_DEVICE} "$@"
 #}
@@ -330,7 +331,7 @@ adb_pullAppFile() {
 	app=$1
 	path=$2
 	base=$(basename $path)
-	ser=$3
+	ser=${3:-$ADB_DEVICE}
 	# replace with install -D?
 	mkdir -pv $(dirname $app/$path)
 	adb_="adb ${ser:+-s $ser}"
@@ -345,7 +346,7 @@ adb_pushAppFile() {
 	fpath=$2
 	dpath=$3
 	base=$(basename $fpath)
-	ser=$4
+	ser=${4:-$ADB_DEVICE}
 	adb_="adb ${ser:+-s $ser}"
 	$adb_ push $fpath /sdcard/ &&
 		$adb_ shell run-as $app cp /sdcard/$base $dpath
@@ -364,5 +365,9 @@ function adb_getDevice {
 
 function adb_getIp {
 	adb_ shell ip addr show dev wlan0 |sed -En 's/.*inet ([0-9.]+).*/\1/p' 
+}
+
+function adb_findPid {
+	adb_ shell ps -ef |grep -i "$1" |awk '{print $2}'
 }
 
