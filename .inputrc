@@ -1,0 +1,10 @@
+$include /etc/inputrc
+
+set show-all-if-ambiguous On
+#
+# alternate mappings for "page up" and "page down" to search the history
+"\ek": history-search-backward
+"\ej": history-search-forward
+
+"\C-x\C-n": menu-complete
+

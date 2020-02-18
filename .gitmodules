@@ -1,3 +1,6 @@
+[submodule "gits/bpx"]
+	path = gits/bpx
+	url = git@github.com:d630/bpx.git
 [submodule "gits/bash-preexec"]
 	path = gits/bash-preexec
 	url = git@github.com:rcaloras/bash-preexec.git

@@ -5,6 +5,22 @@ isBashVers5() {
 	[[ $BASH_VERSION =~ ^5.* ]]
 }
 
+if ! isBashVers5; then
+	export MAC=true
+else
+	unset MAC
+fi
+
+isMac() {
+	[ -n "$MAC" ]
+}
+
+if ! isMac; then
+	alias gdate=date
+	alias gsed=sed
+	alias gecho=echo
+fi
+
 # Some example alias instructions
 # If these are enabled they will be used instead of any instructions
 # they may mask.  For example, alias rm='rm -i' will mask the rm

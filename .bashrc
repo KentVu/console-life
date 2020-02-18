@@ -47,15 +47,14 @@ prompt_command_function () {
 
 test -f ~/.bash_prompt && . ~/.bash_prompt
 
-if isBashVers5; then
-	PATH=/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH
+if isBashVers5; then # xterm terminal
 	#bpx
 	source $HOME/gits/bpx/bpx.bash
 	bind 'RETURN: "\C-x\C-x1"'
 	preexec_functions=(command_enter_function)
 	PROMPT_COMMAND=__bpx_hook_prompt
 	prompt_functions=(prompt_command_function)
-else
+else # mac terminal
 	#bind 'RETURN: "\C-x\C-f"'
 	#bind -x '"\C-x\C-f": command_enter_function'
 	preexec_functions+=(command_enter_function)

@@ -1,4 +1,12 @@
 #!/bin/bash
+if [ -z "$MAC" ]; then
+	alias gdate=date
+	alias gsed=sed
+	alias gecho=echo
+	DATE=date
+else
+	DATE=gdate
+fi
 #https://stackoverflow.com/a/246128/1562087
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 db=~/.hist.db
@@ -91,7 +99,7 @@ case "$command" in
 		shift
 		pwd=$(pwd)
 		at=$1
-		duration=$((`gdate +%s` - ${at:-0}))
+		duration=$((`$DATE +%s` - ${at:-0}))
 		shift
 		cmd="$@"
 		cmd="${cmd//\'/''}"
