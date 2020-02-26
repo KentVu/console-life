@@ -349,11 +349,12 @@ adb_pullAppFile() {
 	base=$(basename $path)
 	ser=${3:-$ADB_DEVICE}
 	# replace with install -D?
-	mkdir -pv $(dirname $app/$path)
+	localpath=./$ser/$app/$path
+	mkdir -pv $(dirname $localpath)
 	adb_="adb ${ser:+-s $ser}"
 	#adb ${ser:+-s $ser} shell run-as $app "cat /data/user/0/$app/$path" > $app/$path
-	$adb_ shell run-as $app "cat $path" > $app/$path
-	echo file pulled to $app/$path
+	$adb_ shell run-as $app "cat $path" > $localpath
+	echo file pulled to $localpath
 }
 
 adb_pushAppFile() {

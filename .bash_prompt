@@ -25,9 +25,13 @@ then
 	COMPLETION_PATH="${COMPLETION_PATH%/lib/git-core}"
 	#COMPLETION_PATH="$COMPLETION_PATH/share/git/completion"
 	COMPLETION_PATH="$COMPLETION_PATH/share/git-core"
-	if test -f "$COMPLETION_PATH/git-prompt.sh"
+	if [ ! -f "$COMPLETION_PATH/git-prompt.sh" ]; then
+		COMPLETION_PATH=~/.local/share/git-core
+	fi
+	COMPLETION_FILE="$COMPLETION_PATH/git-completion.bash"
+	if test -f "$COMPLETION_FILE"
 	then
-		. "$COMPLETION_PATH/git-completion.bash"
+		. "$COMPLETION_FILE"
 		. "$COMPLETION_PATH/git-prompt.sh"
 		PS1="$PS1"'\[\033[36m\]'  # change color to cyan
 		PS1="$PS1"'`__git_ps1`'   # bash function
