@@ -33,7 +33,7 @@ prompt_command_function () {
 	[ $last_time -gt 5 ] && echo -ne \\a
 	# set wintitle
 	last_time_HMS=`gdate --date=@${last_timestamp:-0} +%H%M%S`
-	#isBashVers5 &&
+	#isBashVers4Up &&
 	gecho -ne "\e]0;${last_line/\\/^}|`basename "$PWD"`\a"
 	# History log
 	if [ "$(id -u)" -ne 0 ]; then
@@ -47,7 +47,7 @@ prompt_command_function () {
 
 test -f ~/.bash_prompt && . ~/.bash_prompt
 
-if isBashVers5; then # xterm terminal
+if isBashVers4Up; then # xterm terminal
 	#bpx
 	source $HOME/gits/bpx/bpx.bash
 	bind 'RETURN: "\C-x\C-x1"'

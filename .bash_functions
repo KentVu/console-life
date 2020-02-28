@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # way to determine if we're on Mac's builtin bash or otherwise
-isBashVers5() {
-	[[ $BASH_VERSION =~ ^5.* ]]
+isBashVers4Up() {
+	[[ $BASH_VERSION =~ ^[45].* ]]
 }
 
-if ! isBashVers5; then
+if ! isBashVers4Up; then
 	export MAC=true
 else
 	unset MAC
@@ -37,7 +37,7 @@ alias mkdir='mkdir -v'
 #alias chown='chown -c'
 
 # some more ls aliases
-if isBashVers5; then
+if isBashVers4Up; then
     alias ll='ls -lFh'
     alias lla='ls -alFh'
     alias la='ls -A'
@@ -139,12 +139,12 @@ cd_func ()
 }
 alias cd=cd_func
 # F4: print dir stack (require cd_func())
-if isBashVers5; then
-	bind -x '"\eOS":cd --'
-else
+#if isBashVers4Up; then
+#	bind -x '"\eOS":cd --'
+#else
 	#bind '"\eOS":"\C-acd --\C-k\n"'
 	bind -x '"\C-^":"cd -; cd --"'
-fi
+#fi
 
 ### misc
 latestFileOfDir() {
