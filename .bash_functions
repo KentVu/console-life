@@ -227,6 +227,28 @@ function readlineChangeToRelativePath() {
 # F4
 bind -x '"\eOP": readlineChangeToRelativePath'
 
+function mpvthunar() {
+    local login=vutrankien:k
+    i=0
+    while [ "$i" -lt "$#" ]; do
+	set -- "$@" "$( node -e "console.log(decodeURI(process.argv[1].replace('smb://','smb://$login@')))" -- "$1" )"
+	shift
+	i=$(( i + 1 ))
+    done
+
+    mpv "$unes" "$@"
+}
+
+wakealarm() {
+    wakeat="$*"
+    sudo sh -c "echo 0 > /sys/class/rtc/rtc0/wakealarm" && sudo sh -c "echo `date '+%s' -d "+ $wakeat"` > /sys/class/rtc/rtc0/wakealarm"
+}
+
+suspend-for() {
+    dur=${*:-"1 min"}
+    sudo sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo pm-suspend"
+}
+
 ## Git
 
 function gitIsDetaching() {

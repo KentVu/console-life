@@ -111,7 +111,7 @@ case "$command" in
 		if [ $cmdid == 0 ]; then
 			cmdid=`sql "SELECT rowid FROM commands WHERE command = '$cmd'"`
 		fi
-		if [ $pwdid == 0 ]; then
+		if [ "$pwdid" == 0 ]; then
 			pwdid=`sql "SELECT rowid FROM directories WHERE directory = '$pwd'"`
 		fi
 		sql "INSERT INTO runtimes(at,duration,cmd,wd) VALUES ($at,$duration,$cmdid,$pwdid)"

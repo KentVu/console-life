@@ -22,9 +22,10 @@ command_enter_function ()
 }
 
 prompt_command_function () {
+	# always the first line
+	last_sts=$?
 	# Whenever displaying the prompt, write the previous line to disk
 	history -a
-	last_sts=$?
 	if [ -z "$last_timestamp" ]; then
 		last_time=0
 	else
@@ -62,6 +63,26 @@ else # mac terminal
 	#PROMPT_COMMAND=prompt_command_function
 	source ~/gits/bash-preexec/bash-preexec.sh
 fi
+# Put your fun stuff here.
+#complete -cf sudo
+
+# Copy current line on Alt-E
+#bind -x '"\eE": echo -n "$READLINE_LINE" | xsel -b'
+
+# Enable completion
+if [ -f /etc/bash/bashrc.d/bash_completion.sh ]; then
+    source /etc/bash/bashrc.d/bash_completion.sh
+fi
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+# auto attach tmux session
+#if [[ ! -n "$WINDOW" && -z "$TMUX" && ! "$TERM" =~ "screen" && ! "$TERM" = linux && "$SHLVL" -eq 1 ]]; then
+#    if [[ -n "$SSH_CONNECTION" ]]; then
+#	: screen
+#	#sudo sh -c "echo 0 > /sys/class/rtc/rtc0/wakealarm" && sudo sh -c "echo ` date '+%s' -d '+ 3 hours'` > /sys/class/rtc/rtc0/wakealarm" &&
+#		DISPLAY=:0 xdotool mousemove_relative 5 5
+#		tmux attach -t mobile
+#    fi
+#fi
