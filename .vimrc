@@ -8,7 +8,8 @@ map <F10> :confirm q<CR>
 "nmap <C-Down> <C-e>
 " search for currently selected text (visual mode)
 "vnoremap // y:exec '/\M'.escape('<C-R>"', '/')<CR>
-vnoremap <S-F6> :w ! pbcopy<CR>
+" https://coderwall.com/p/v-st8w/vim-copy-to-system-clipboard-on-a-mac
+vmap '' :w !pbcopy<CR><CR>
 xnoremap <F6> :call VisualCopyMac()<CR>
 
 nmap s <Plug>(easymotion-s)
