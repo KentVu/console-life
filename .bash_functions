@@ -247,6 +247,8 @@ wakealarm() {
 suspend-for() {
     dur=${*:-"1 min"}
     sudo sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo pm-suspend"
+    suspendcmd=${suspendcmd:-s2ram --force}
+    sudo sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo $suspendcmd"
 }
 
 ## Git
@@ -399,7 +401,7 @@ function adb_firstDevice {
 function adb_getDevice {
 	local ord=${1:-1}
 	ord=$(($ord + 1))
-	adb devices |gsed -En $ord's/^([A-Z0-9.:]+).*/\1/p'
+	adb devices |gsed -En $ord's/^([a-zA-Z0-9.:]+).*/\1/p'
 }
 
 function adb_getIp {
@@ -408,5 +410,31 @@ function adb_getIp {
 
 function adb_findPid {
 	adb_ shell ps -ef |grep -i "$1" |awk '{print $2}'
+}
+
+#ssh
+# https://stackoverflow.com/a/18915067/1562087
+SSH_ENV="$HOME/.ssh/environment"
+
+function start_agent {
+    echo "Initialising new SSH agent..."
+    /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+    echo succeeded
+    chmod 600 "${SSH_ENV}"
+    . "${SSH_ENV}" > /dev/null
+    /usr/bin/ssh-add
+}
+
+# Source SSH settings, if applicable
+function load_or_start_agent {
+    if [ -f "${SSH_ENV}" ]; then
+        . "${SSH_ENV}" > /dev/null
+        #ps ${SSH_AGENT_PID} doesn't work under cywgin
+        ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+            start_agent
+        }
+    else
+        start_agent
+    fi
 }
 
