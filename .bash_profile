@@ -8,6 +8,7 @@ fi
 if [ -d ~/.local/bin ]; then
 	PATH=~/.local/bin:$PATH
 fi
+
 SHELL_SESSION_HISTORY=0
 EDITOR=vim
 

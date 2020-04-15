@@ -246,7 +246,6 @@ wakealarm() {
 
 suspend-for() {
     dur=${*:-"1 min"}
-    sudo sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo pm-suspend"
     suspendcmd=${suspendcmd:-s2ram --force}
     sudo sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo $suspendcmd"
 }
