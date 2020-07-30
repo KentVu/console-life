@@ -400,7 +400,7 @@ function adb_firstDevice {
 function adb_getDevice {
 	local ord=${1:-1}
 	ord=$(($ord + 1))
-	adb devices |gsed -En $ord's/^([a-zA-Z0-9.:]+).*/\1/p'
+	adb devices |gsed -En $ord's/^([a-zA-Z0-9.:-]+).*/\1/p'
 }
 
 function adb_getIp {
