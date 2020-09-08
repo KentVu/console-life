@@ -44,14 +44,17 @@ my $focus_pid;
 #Getopt::Mixed::cleanup();
 #die "No project specified via -j.\n" unless $Project;
 my %opts;
-getopts('f:s:g:', \%opts);
+getopts('f:s:g:c:', \%opts);
 #sub HELP_MESSAGE {}
 
 $focus_pid=$opts{f};
 my $startr = $opts{s};
 my $grep = $opts{g};
+my $capture = $opts{c};
 my $started = !$startr;
-my $grep2;
+my $grep2 = '';
+
+say "[grep = $grep][start = $startr]";
 
 while(<STDIN>) {
     my $thr;
@@ -60,14 +63,11 @@ while(<STDIN>) {
     if (!$started && $line =~ m/$startr/) {
         say "started";
         $started = 'true';
-        if ($1) {
-            say "grep2 = $1";
-            $grep2 = $1
-        }
     }
-    my $print = $started;
-    #$print = !$grep2 || $line =~ m/$grep2/;
-    $print = !$grep || $line =~ m/$grep/;
+    my $print = !($grep || $grep2); #print if none of grep given
+    #$print = ($grep || $grep2) && $line =~ m/($grep)|($grep2)/;
+    $print = $line =~ m/$grep/ if ($grep);
+    $print = $line =~ m/$grep2/ if (!$print && $grep2);
     #say "print = $print";
     if ($started && $print
      && $line =~ m/(?<DATE>$dateTime)\s+(?<PID>\d+)\s+(?<TID>\d+) (?<LVL>$logLvl) (?<TAG>.*?): (?<CONTENT>.*)$/) {
@@ -77,8 +77,18 @@ while(<STDIN>) {
             $color = $colors{V}
         }
         $thr = $h{PID} == $h{TID} ? "$colors{b}$h{PID}$color" : "$h{PID}" . tidChar $h{TID};
-        say qq[$color$h{DATE}:$thr:] . colorize($colors{b}, "$h{TAG}|") . colorize($color, "$h{CONTENT}");
+        say qq[$color$h{LVL}:$h{DATE}:$thr:] . colorize($colors{b}, "$h{TAG}|") . colorize($color, "$h{CONTENT}");
     }# else {
     #    say
     #}
+    if ($line =~ m/$capture/) {
+        if ($1) {
+            if ($grep2) {
+                $grep2 = "$grep2|$1";
+            } else {
+                $grep2 = "$1";
+            }
+            say "grep2 = $grep2";
+        }
+    }
 }

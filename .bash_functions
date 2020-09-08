@@ -408,7 +408,13 @@ function adb_getIp {
 }
 
 function adb_findPid {
-	adb_ shell ps -ef |grep -i "$1" |awk '{print $2}'
+    case "$1" in
+        -r) 
+			regex_syntax=$1 ; shift ;;
+    esac
+	sed="awk \"{print}\" ORS=\| |sed s/.$//"
+	#echo $sed
+	eval "adb_ shell ps -ef |grep -Ei \"$1\" |awk '{print \$2}'" "${regex_syntax:+|$sed}"
 }
 
 #ssh
