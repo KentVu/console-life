@@ -14,12 +14,14 @@ my %colors = (
     V => "\e[2;37m",
     n => "\e[0;0m",
     b => "\e[2m",
+    h => "\e[40m\e[37m", #highlight
 );
 my $dateTime=q/[\d-]+ [\d:\.]+/;
 my $logLvl=q/[VDIWE]/;
 
 sub tidChar {
 	my $tid=$_[0];
+    if(!$tid) { return }
 	my $sum=sum split //, $tid;
 	chr $sum % 64 + ord 'A';
 }
@@ -54,7 +56,7 @@ my $capture = $opts{c};
 my $started = !$startr;
 my $grep2 = '';
 
-say "[grep = $grep][start = $startr]";
+say "[grep = $grep][start = $started][capture = $capture]";
 
 while(<STDIN>) {
     my $thr;
@@ -68,27 +70,30 @@ while(<STDIN>) {
     #$print = ($grep || $grep2) && $line =~ m/($grep)|($grep2)/;
     $print = $line =~ m/$grep/ if ($grep);
     $print = $line =~ m/$grep2/ if (!$print && $grep2);
-    #say "print = $print";
+    #say "print = $print, started = $started";
     if ($started && $print
-     && $line =~ m/(?<DATE>$dateTime)\s+(?<PID>\d+)\s+(?<TID>\d+) (?<LVL>$logLvl) (?<TAG>.*?): (?<CONTENT>.*)$/) {
+     && ($line =~ m/(?<DATE>$dateTime)\s+(?<PID>\d+)\s+(?<TID>\d+) (?<LVL>$logLvl) (?<TAG>.*?): (?<CONTENT>.*)$/
+        || $line =~ m/(?<DATE>$dateTime)\s+(?<LVL>$logLvl)\/(?<TAG>\w+)\s*\(\s*(?<PID>\d+)\s*\): (?<CONTENT>.*)$/)
+     ) {
         my %h=%+;
         my $color = $colors{$h{LVL}};
         if ($focus_pid && $h{PID} != $focus_pid) {
             $color = $colors{V}
         }
-        $thr = $h{PID} == $h{TID} ? "$colors{b}$h{PID}$color" : "$h{PID}" . tidChar $h{TID};
+        my $tid = $h{TID} ? $h{TID} : $h{PID};
+        $thr = $h{PID} == $tid ? "$colors{b}$h{PID}$color" : "$h{PID}" . tidChar $tid;
         say qq[$color$h{LVL}:$h{DATE}:$thr:] . colorize($colors{b}, "$h{TAG}|") . colorize($color, "$h{CONTENT}");
     }# else {
     #    say
     #}
-    if ($line =~ m/$capture/) {
+    if ($capture && $line =~ m/$capture/) {
         if ($1) {
             if ($grep2) {
                 $grep2 = "$grep2|$1";
             } else {
                 $grep2 = "$1";
             }
-            say "grep2 = $grep2";
+            say "$colors{h}grep2 = $grep2$colors{n}";
         }
     }
 }
