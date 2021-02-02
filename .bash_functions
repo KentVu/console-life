@@ -385,12 +385,13 @@ adb_pushAppFile() {
 	app=$1
 	fpath=$2
 	dpath=$3
+	tmppath=/data/local/tmp
 	base=$(basename $fpath)
 	ser=${4:-$ADB_DEVICE}
 	adb_="adb ${ser:+-s $ser}"
-	$adb_ push $fpath /sdcard/ &&
-		$adb_ shell run-as $app cp /sdcard/$base $dpath
-	echo file pushed to $dpath of $app
+	$adb_ push $fpath $tmppath/ &&
+		$adb_ shell run-as $app cp -v $tmppath/$base $dpath
+	echo "file pushed to $dpath of $app (via $tmppath)"
 }
 
 function adb_firstDevice {

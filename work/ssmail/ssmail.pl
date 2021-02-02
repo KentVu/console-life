@@ -37,6 +37,7 @@ $mailfrom = 'vu_tran_kien@access.co.jp';
 #$rcptto = '0vw41b322ky070w@ezweb.ne.jp';   # Pixel 3a
 #$rcptto = '0jh425322ky3j4v@ezweb.ne.jp';    # STF SCV39 Q
 $rcptto = '0ve30352726464s@ezweb.ne.jp';    # TRO
+#$rcptto = 'test0sh20200915_2@au.com';    # GEK-1
 
 
 #送信順の設定(ファイル名でソートして正順で送信する場合は0、逆順で送信する場合は1としてください)
@@ -68,10 +69,17 @@ unless (-d $dir_name) {
 #ディレクトリをオープンしてメールソースファイルリストを作成
 opendir(DIR, $dir_name) or die "$!";
 while ($filename = readdir(DIR)) {
-	next if ($filename eq "." || $filename eq ".." || $filename =~ /^\.\w+/);
+	next if ($filename eq "." || $filename eq ".." || $filename =~ /^\.\w+|~$/);
 	push(@mailsrclist, $filename);
 }
 closedir(DIR);
+
+{my $tmprcpt = shift @ARGV;
+if ($tmprcpt) {
+	$rcptto =  $tmprcpt;
+}
+print "rcptto=$rcptto\n";
+}
 
 #ソケットを作成
 socket(S, AF_INET, SOCK_STREAM, $proto) or die "socket: $!";

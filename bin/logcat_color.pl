@@ -11,11 +11,12 @@ my %colors = (
     W => "$c_markstart\e[0;33m$c_markend",
     E => "$c_markstart\e[0;31m$c_markend",
     D => "",
-    V => "\e[2;37m",
+    V => "\e[2;30m",
     n => "\e[0;0m",
     b => "\e[2m",
-    h => "\e[40m\e[37m", #highlight
+    h => "\e[37;40mm", #highlight
 );
+my $tagsep = '‖';
 my $dateTime=q/[\d-]+ [\d:\.]+/;
 my $logLvl=q/[VDIWE]/;
 
@@ -82,7 +83,7 @@ while(<STDIN>) {
         }
         my $tid = $h{TID} ? $h{TID} : $h{PID};
         $thr = $h{PID} == $tid ? "$colors{b}$h{PID}$color" : "$h{PID}" . tidChar $tid;
-        say qq[$color$h{LVL}:$h{DATE}:$thr:] . colorize($colors{b}, "$h{TAG}|") . colorize($color, "$h{CONTENT}");
+        say qq[$color$h{LVL}:$h{DATE}:$thr:] . colorize($colors{b}, "$h{TAG}$tagsep") . colorize($color, "$h{CONTENT}");
     }# else {
     #    say
     #}

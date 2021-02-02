@@ -97,7 +97,7 @@ endif
 function! VisualCopyMac() range
     let n = @n
     silent! normal gv"ny
-    call system("echo " . shellescape(@n) . " | pbcopy")
+    call system("echo -n " . shellescape(@n) . " | pbcopy")
     echo "Copied to clipboard:" . @n
     let @n = n
     " bonus: restores the visual selection
