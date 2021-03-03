@@ -66,6 +66,7 @@ fi
 # Put your fun stuff here.
 #complete -cf sudo
 
+# Copy current line on Alt-E
 bind -x '"\eE": echo -n "$READLINE_LINE" | xsel -b'
 
 # Enable completion
