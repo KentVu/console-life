@@ -1,0 +1,124 @@
+#!/bin/bash
+# https://stackoverflow.com/a/29754866/1562087
+# saner programming env: these switches turn some bugs into errors
+set -o errexit -o pipefail -o noclobber -o nounset
+
+# -allow a command to fail with !’s side effect on errexit
+# -use return value from ${PIPESTATUS[0]}, because ! hosed $?
+! getopt --test > /dev/null 
+if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
+    echo 'I’m sorry, `getopt --test` failed in this environment.'
+    exit 1
+fi
+
+OPTIONS=rnos:d:
+LONGOPTS=remux,noaudio,scale:,output:,outdir:
+SUF=265
+
+# -regarding ! and PIPESTATUS see above
+# -temporarily store output to be able to check for errors
+# -activate quoting/enhanced mode (e.g. by writing out “--options”)
+# -pass arguments only via   -- "$@"   to separate them correctly
+! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
+if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+    # e.g. return value is 1
+    #  then getopt has complained about wrong arguments to stdout
+    exit 2
+fi
+# read getopt’s output this way to handle the quoting right:
+eval set -- "$PARSED"
+
+mode=- outFile=- outDir=-
+# now enjoy the options in order and nicely split until we see --
+while true; do
+    case "$1" in
+        -r|--remux)
+            mode=remux
+            shift
+            ;;
+        -n|--noaudio)
+            mode=noaudio
+            shift
+            ;;
+        -s|--scale)
+            mode=scale
+			scale="$2"
+            shift 2
+            ;;
+        -o|--output)
+            outFile="$2"
+            shift 2
+            ;;
+        -d|--outdir)
+            outDir="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Programming error"
+            exit 3
+            ;;
+    esac
+done
+
+# handle non-option arguments
+if [[ $# -ne 1 ]]; then
+    echo "$0: A single input file is required."
+    exit 4
+fi
+
+if [ "$outFile" = "-" ]; then
+    echo "$0: no outFile specified."
+    #exit 5
+    outFile=
+fi
+
+echo "mode: $mode, in: $1, out: $outFile dir: $outDir"
+
+function _enc265-setup {
+    srccap="$1"
+    enccap="${srccap%.*}-$SUF.mp4"
+    if ! [ "$outDir" = "-" ]; then
+        defout="$outDir/$(basename "$1")"
+        enccap=${defout%.*}-$SUF.mp4
+        srcremux=${defout%.*}-remux.mp4
+    else
+        enccap="${outFile:-$enccap}"
+        srcremux="${srccap%.*}-remux.mp4"
+    fi
+    ffmpeg -i "$srccap" || true
+    echo "$srccap -> $enccap"
+    ls -lh "$srccap"
+    if [ -a "$enccap" ]; then
+        echo "$0: ERROR:$enccap already exists!"
+        echo srccap:"$srccap" srcremux:"$srcremux" enccap:"$enccap" 
+        ls -lh "$enccap" 
+        return 1
+    fi
+}
+
+_enc265-setup "$@"
+if [ $? != 0 ]; then exit 6; fi
+#read -p "-vf=?" vf
+read -p "additional options?" add
+case "$mode" in
+    remux)
+	ffmpeg-remux "$srccap" "$srcremux"
+        ll "$srccap" "$srcremux" "$enccap" 
+	;;
+    noaudio)
+	ffmpeg -i "$srccap" ${vf:+-vf $vf} $add -c:v libx265 -an -map_metadata 0 -movflags use_metadata_tags "$enccap"
+	;;
+    scale)
+	ffmpeg -i "$srccap" -vf scale="iw$scale:ih$scale" $add -c:v libx265 -c:a copy -map_metadata 0 -movflags use_metadata_tags "$enccap"
+	;;
+    *)
+	ffmpeg -i "$srccap" ${vf:+-vf $vf} $add -c:v libx265 -c:a copy -map_metadata 0 -movflags use_metadata_tags "$enccap"
+	;;
+esac
+# copy modified time
+touch -d "`date -r "$srccap"`" "$enccap"
+ls -lh "$srccap" "$enccap" 

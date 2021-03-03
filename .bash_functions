@@ -61,7 +61,7 @@ alias gll='git log'
 alias gla='git log --graph --date-order --date=default -C -M --pretty=format:"%Cred[%h]%Creset [%ad] %Cgreen%d%Creset %n          [%an] %s" --all'
 alias gd='git diff'
 alias gdc='git diff --cached'
-alias gh="git log --pretty=format:'%h' -n 1"
+#alias gh="git log --pretty=format:'%h' -n 1"
 function __git_wrap_git_log() { __git_func_wrap _git_log; }
 complete -o bashdefault -o default -o nospace -F __git_wrap_git_log gh
 
@@ -224,8 +224,8 @@ function readlineChangeToRelativePath() {
 		fi
 	done
 }
-# F4
-bind -x '"\eOP": readlineChangeToRelativePath'
+# Alt-F1
+bind -x '"\e[17~": readlineChangeToRelativePath'
 
 function mpvthunar() {
     local login=vutrankien:k
@@ -247,7 +247,7 @@ wakealarm() {
 suspend-for() {
     dur=${*:-"1 min"}
     suspendcmd=${suspendcmd:-s2ram --force}
-    sudo sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo $suspendcmd"
+    sh -c "sleep 30 && echo $dur > /tmp/pm-suspend-duration && sudo $suspendcmd"
 }
 
 ## Git
