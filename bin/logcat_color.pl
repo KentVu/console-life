@@ -69,11 +69,12 @@ while(<STDIN>) {
     }
     my $print = !($grep || $grep2); #print if none of grep given
     #$print = ($grep || $grep2) && $line =~ m/($grep)|($grep2)/;
-    $print = $line =~ m/$grep/ if ($grep);
+    $print = $line =~ m/$grep/i if ($grep);
     $print = $line =~ m/$grep2/ if (!$print && $grep2);
     #say "print = $print, started = $started";
     if ($started && $print
      && ($line =~ m/(?<DATE>$dateTime)\s+(?<PID>\d+)\s+(?<TID>\d+) (?<LVL>$logLvl) (?<TAG>.*?): (?<CONTENT>.*)$/
+        || $line =~ /(?<LVL>$logLvl):(?<DATE>$dateTime):(?<PID>\d+)(?<TIDC>[^:]?):(?<TAG>\w+)$tagsep(?<CONTENT>.*)$/
         || $line =~ m/(?<DATE>$dateTime)\s+(?<LVL>$logLvl)\/(?<TAG>\w+)\s*\(\s*(?<PID>\d+)\s*\): (?<CONTENT>.*)$/)
      ) {
         my %h=%+;
@@ -82,8 +83,9 @@ while(<STDIN>) {
             $color = $colors{V}
         }
         my $tid = $h{TID} ? $h{TID} : $h{PID};
+        my $tidc = $h{TIDC} ? $h{TIDC} : '';
         $thr = $h{PID} == $tid ? "$colors{b}$h{PID}$color" : "$h{PID}" . tidChar $tid;
-        say qq[$color$h{LVL}:$h{DATE}:$thr:] . colorize($colors{b}, "$h{TAG}$tagsep") . colorize($color, "$h{CONTENT}");
+        say qq[$color$h{LVL}:$h{DATE}:$thr$tidc:] . colorize($colors{b}, "$h{TAG}$tagsep") . colorize($color, "$h{CONTENT}");
     }# else {
     #    say
     #}

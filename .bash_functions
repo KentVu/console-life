@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (C) 2021 Vu Tran Kien <vutrankien.vn@gmail.com>
 
 # way to determine if we're on Mac's builtin bash or otherwise
 isBashVers4Up() {
