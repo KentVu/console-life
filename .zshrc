@@ -120,45 +120,6 @@ PATH=$PATH:$ANDROID_HOME/platform-tools
 # history-substring-search-up
 #bindkey '^[k' history-substring-search-up
 #bindkey '^[k' history-search-backward
-# copyline
-x-copy-region-as-kill () {
-  zle copy-region-as-kill
-  print -rn $CUTBUFFER | pbcopy
-}
-zle -N x-copy-region-as-kill
-bindkey -e '\ew' x-copy-region-as-kill
-
-function mkcd { mkdir -pv $1 && cd $1 ;}
-
-# movement
-bindkey '^[b' vi-backward-word
-#bindkey '^[f' vi-forward-word-end
-bindkey '^[f' emacs-forward-word
-bindkey '^[B' vi-backward-blank-word
-bindkey '^[F' vi-forward-blank-word
-#bindkey '^x^w' kill-region
-bindkey '^[w' kill-region
-# C-S-right
-bindkey '^[OC' forward-word
-
-toggle_vpn() { 
-	date +%H%M%S
-	if [ $(networksetup -showpppoestatus "VPN (L2TP)") = connected ]
-	then
-		echo disconnect
-		networksetup -disconnectpppoeservice "VPN (L2TP)"
-	else
-		echo connect
-		networksetup -connectpppoeservice "VPN (L2TP)" && sleep 1 && 
-	   		sudo route add -net 10.5.0.0/16 -interface ppp0
-	fi 
-}
-zle -N toggle_vpn
-bindkey '^[n' toggle_vpn
-
-cd_last() { cd - }
-zle -N cd_last
-bindkey '^^' cd_last
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
