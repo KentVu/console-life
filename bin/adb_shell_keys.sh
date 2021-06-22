@@ -1,3 +1,6 @@
+DISABLE_AUTO_TITLE="true"
+echo -n -e "\033]0;$0\007"
+
 function adb_ {
     if [ -z "$ADB_DEVICE" ]; then
         adb "$@"
@@ -24,17 +27,47 @@ bindkey "^[b" adb_input_back
 declare -A keys
 keys[UP]="OA"
 keys[DOWN]="OB"
-function adb_input_ {
-   if [ "$KEYS" = $keys[UP] ]; then
-	   adb_ shell input keyevent KEYCODE_DPAD_UP
-   elif [ "$KEYS" = $keys[DOWN] ]; then
-	   adb_ shell input keyevent KEYCODE_DPAD_DOWN
-   else
-   	   adb_ shell input keyevent KEYCODE_$KEYS
-   fi
-}
-zle -N adb_input_
-bindkey "1" adb_input_
-bindkey "2" adb_input_
+keys[RIGHT]="OC"
+keys[HOME]="h"
+keys[ENDCALL]="c"
+keys[F3]="OR"
+keys[F4]="OS"
+keys[CENTER]="d"
+keys[CAPTURE]="t"
+typeset -A reversed_keys
+for k v ("${(@kv)keys}") reversed_keys[$v]=$k
 bindkey "$keys[UP]" adb_input_
 bindkey "$keys[DOWN]" adb_input_
+bindkey "$keys[RIGHT]" adb_input_
+bindkey "$keys[HOME]" adb_input_
+bindkey "$keys[ENDCALL]" adb_input_
+bindkey "$keys[F3]" adb_input_
+bindkey "$keys[F4]" adb_input_
+bindkey "$keys[CENTER]" adb_input_
+bindkey "$keys[CAPTURE]" adb_input_
+zle -N adb_input_
+function adb_input_ {
+    keyname=$reversed_keys[$KEYS]
+    date +%H%M%S-$keyname-${(qqqq)KEYS}
+    if [ "$KEYS" = $keys[UP] ]; then
+        adb_ shell input keyevent KEYCODE_DPAD_UP
+    elif [ "$KEYS" = $keys[DOWN] ]; then
+        adb_ shell input keyevent KEYCODE_DPAD_DOWN
+    elif [ "$KEYS" = $keys[RIGHT] ]; then
+        adb_ shell input keyevent KEYCODE_DPAD_RIGHT
+    elif [ "$KEYS" = $keys[ENDCALL] ]; then
+        adb_ shell input keyevent KEYCODE_ENDCALL
+    elif [ "$KEYS" = $keys[F3] ]; then
+        adb_ shell input keyevent KEYCODE_F3
+    elif [ "$KEYS" = $keys[F4] ]; then
+        adb_ shell input keyevent KEYCODE_F4
+    elif [ "$KEYS" = $keys[CENTER] ]; then
+        adb_ shell input keyevent KEYCODE_DPAD_CENTER
+    elif [ "$KEYS" = $keys[CAPTURE] ]; then
+        adb_ shell screencap ./sdcard/rec-$(date +%Y%m%d-%H%M%S).png
+    else
+        adb_ shell input keyevent KEYCODE_$KEYS
+    fi
+}
+bindkey "1" adb_input_
+bindkey "2" adb_input_
