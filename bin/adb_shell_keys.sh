@@ -22,9 +22,9 @@ function adb_input_dpad_center { adb_ shell input keyevent 23; }
 zle -N adb_input_dpad_center
 bindkey "^j" adb_input_dpad_center
 function adb_input_back { adb_ shell input keyevent KEYCODE_BACK; }
-zle -N adb_input_back
-bindkey "^[b" adb_input_back
+#zle -N adb_input_back
 declare -A keys
+keys[BACK]="b"
 keys[UP]="OA"
 keys[DOWN]="OB"
 keys[RIGHT]="OC"
@@ -36,6 +36,7 @@ keys[CENTER]="d"
 keys[CAPTURE]="t"
 typeset -A reversed_keys
 for k v ("${(@kv)keys}") reversed_keys[$v]=$k
+bindkey "$keys[BACK]" adb_input_
 bindkey "$keys[UP]" adb_input_
 bindkey "$keys[DOWN]" adb_input_
 bindkey "$keys[RIGHT]" adb_input_
@@ -64,7 +65,11 @@ function adb_input_ {
     elif [ "$KEYS" = $keys[CENTER] ]; then
         adb_ shell input keyevent KEYCODE_DPAD_CENTER
     elif [ "$KEYS" = $keys[CAPTURE] ]; then
-        adb_ shell screencap ./sdcard/rec-$(date +%Y%m%d-%H%M%S).png
+        date=$(date +%Y%m%d-%H%M%S)
+        filename=rec-$date.png
+        file=./sdcard/$filename
+        adb_ shell screencap $file
+        adb_ pull $file
     else
         adb_ shell input keyevent KEYCODE_$KEYS
     fi
