@@ -27,6 +27,7 @@ declare -A keys
 keys[BACK]="b"
 keys[UP]="OA"
 keys[DOWN]="OB"
+keys[LEFT]="OD"
 keys[RIGHT]="OC"
 keys[HOME]="h"
 keys[ENDCALL]="c"
@@ -39,6 +40,7 @@ for k v ("${(@kv)keys}") reversed_keys[$v]=$k
 bindkey "$keys[BACK]" adb_input_
 bindkey "$keys[UP]" adb_input_
 bindkey "$keys[DOWN]" adb_input_
+bindkey "$keys[LEFT]" adb_input_
 bindkey "$keys[RIGHT]" adb_input_
 bindkey "$keys[HOME]" adb_input_
 bindkey "$keys[ENDCALL]" adb_input_
@@ -54,6 +56,8 @@ function adb_input_ {
         adb_ shell input keyevent KEYCODE_DPAD_UP
     elif [ "$KEYS" = $keys[DOWN] ]; then
         adb_ shell input keyevent KEYCODE_DPAD_DOWN
+    elif [ "$keyname" = LEFT ]; then
+        adb_ shell input keyevent KEYCODE_DPAD_$keyname
     elif [ "$KEYS" = $keys[RIGHT] ]; then
         adb_ shell input keyevent KEYCODE_DPAD_RIGHT
     elif [ "$KEYS" = $keys[ENDCALL] ]; then
@@ -66,10 +70,12 @@ function adb_input_ {
         adb_ shell input keyevent KEYCODE_DPAD_CENTER
     elif [ "$KEYS" = $keys[CAPTURE] ]; then
         date=$(date +%Y%m%d-%H%M%S)
-        filename=rec-$date.png
+        filename=cap-$date.png
         file=./sdcard/$filename
         adb_ shell screencap $file
         adb_ pull $file
+    elif [ -n "$keyname" ]; then
+        adb_ shell input keyevent KEYCODE_$keyname
     else
         adb_ shell input keyevent KEYCODE_$KEYS
     fi
