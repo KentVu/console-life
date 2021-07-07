@@ -1,0 +1,5 @@
+# Search for $command_name and retrieve command line,
+ps -o pid,ppid,command -C $command_name |awk 'FNR >= 2{print $2">"$1" "substr($0, index($0,$3)); system("ls -l /proc/"$1"/cwd")}'
+# multiple ps name, show interested environ, also list child process's cmdline
+ps -o pid,ppid,command -C <cmd1> -C <cmd2> -C <cmd3> |awk 'FNR >= 2{print $2">"$1" "substr($0, index($0,$3)); system("ls -l /proc/"$1"/cwd; cat /proc/"$1"/environ|tr \"\\0\" \"\\n\"|grep -ai CCACHE"); system("ps -wwo pid,cmd -p$(pgrep
+ -P "$1")")}' |less

@@ -1,0 +1,7 @@
+#!/bin/bash
+function exchange_name {
+	local tmp="$1"~
+	mv -vi "$1" $tmp &&
+		mv -vi "$2" "$1" &&
+		mv -vi "$tmp" "$2"
+}

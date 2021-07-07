@@ -1,0 +1,7 @@
+#!/bin/bash
+# https://stackoverflow.com/a/34339327/1562087
+# https://www.perlmonks.org/?node_id=189604
+# requires perl
+cat $file |perl -ne 'foreach my $byte (unpack "C*", $_) { print ord pack("C",$byte),"|" }'
+# useful for decrypting byte-level encrypted files, for ex: byte-inverted or byte-reversed.
+# like so: [...] ord scalar reverse pack("C",$byte)
