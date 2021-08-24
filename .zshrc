@@ -1,3 +1,4 @@
+# vim:expandtab
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -79,7 +80,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-z zsh-autosuggestions kien)
+plugins=(git zsh-z zsh-autosuggestions golang kien)
 #  per-directory-history history-substring-search command-time
 
 source $ZSH/oh-my-zsh.sh
@@ -125,3 +126,19 @@ PATH=$PATH:$ANDROID_HOME/platform-tools
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#Revert Ctrl-t
+bindkey '^X^T' fzf-file-widget
+bindkey '^T' transpose-chars
+#Revert Ctrl-r
+bindkey '^X^R' fzf-history-widget
+bindkey '^R' history-incremental-search-backward
+
+#cdhist fzf
+for _d in /usr/share /usr/local/share; do
+    _f="$_d/cdhist/cdhist.rc"
+    if [[ -r $_f ]]; then
+        source $_f
+        break
+    fi
+done
+export FZF_ALT_C_COMMAND="cat $HOME/.cd_history"

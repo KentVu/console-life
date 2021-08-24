@@ -1,3 +1,4 @@
+RECKEYFILE=reckeys.rec
 DISABLE_AUTO_TITLE="true"
 echo -n -e "\033]0;$0\007"
 
@@ -35,6 +36,7 @@ keys[F3]="OR"
 keys[F4]="OS"
 keys[CENTER]="d"
 keys[CAPTURE]="t"
+keys[RECKEY_START]="[24~" #F12
 typeset -A reversed_keys
 for k v ("${(@kv)keys}") reversed_keys[$v]=$k
 bindkey "$keys[BACK]" adb_input_
@@ -48,10 +50,20 @@ bindkey "$keys[F3]" adb_input_
 bindkey "$keys[F4]" adb_input_
 bindkey "$keys[CENTER]" adb_input_
 bindkey "$keys[CAPTURE]" adb_input_
+bindkey "$keys[RECKEY_START]" adb_input_
 zle -N adb_input_
 function adb_input_ {
     keyname=$reversed_keys[$KEYS]
+    # print log
     date +%H%M%S-$keyname-${(qqqq)KEYS}
+    # reckey
+    if [ "$reckey" = true ]; then
+        if [ -n "$keyname" ]; then
+            date +%s-$keyname >> $RECKEYFILE
+        else
+            date +%s-$KEYS >> $RECKEYFILE
+        fi
+    fi
     if [ "$KEYS" = $keys[UP] ]; then
         adb_ shell input keyevent KEYCODE_DPAD_UP
     elif [ "$KEYS" = $keys[DOWN] ]; then
@@ -74,6 +86,14 @@ function adb_input_ {
         file=./sdcard/$filename
         adb_ shell screencap $file
         adb_ pull $file
+    elif [ "$keyname" = RECKEY_START ]; then
+        if [ "$reckey" = true ]; then
+            echo stop record key
+            reckey=false
+        else
+            echo start record key to $RECKEYFILE
+            reckey=true
+        fi
     elif [ -n "$keyname" ]; then
         adb_ shell input keyevent KEYCODE_$keyname
     else

@@ -117,3 +117,9 @@ elseif &term =~ 'screen\..*' && &term =~ 'xterm'
     "exec 'set term='.substitute(&term,'screen\.', '', '')
     "set background=dark
 endif
+
+"plugs
+" If installed using git
+set rtp+=~/.fzf
+nnoremap <c-p> :FZF<CR>
+nnoremap <silent> <C-a>b :call FZFOpen(':Buffers')<CR>
